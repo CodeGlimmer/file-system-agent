@@ -2,7 +2,7 @@
 并将生成的实例的方法包装为LangChain工具，以便agent使用。
 """
 
-from src.file_system_tools.working_dir import WorkingDir
+from tools.src.file_system_tools.working_dir import WorkingDir
 from langchain.tools import tool, BaseTool
 from pathlib import Path
 
@@ -30,7 +30,7 @@ def generate_working_dir_tool(
             str: 切换结果的描述信息
         """
         try:
-            working_dir.change_to_child_dir(Path(target))
+            working_dir.change_to_child_dir(working_dir.where / target)
             return f"已切换到子目录: {working_dir.where.name}"
         except Exception as e:
             return f"切换子目录失败: {e}"

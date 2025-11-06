@@ -6,13 +6,16 @@ from tools.src.tools_for_agent.static_tools import (
     delete_file,
     rename_file,
 )
-from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
+from langchain_deepseek import ChatDeepSeek
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.messages import HumanMessage
 
+load_dotenv()
+
 tools = [read_file, write_file, add_file, delete_file, rename_file]
 
-model = ChatOllama(model="qwen2.5:3b-instruct-q8_0", temperature=0)
+model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 读取提示词
 with open("agents/prompts/file_agent.md", "r", encoding="utf-8") as f:

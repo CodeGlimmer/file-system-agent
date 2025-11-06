@@ -1,6 +1,7 @@
 from pathlib import Path
 from .file_type import FileType
 from .file_metadata import FileMetadata
+import ipdb
 
 
 class WorkingDir:
@@ -32,7 +33,9 @@ class WorkingDir:
             NotADirectoryError: 目标存在但不是目录
         """
         # 使用 iterdir() 判断是否为当前目录的直接子项（不跨层）
+        ipdb.set_trace()
         if target not in self._now.iterdir():
+            print('不存在这个目录')
             raise FileNotFoundError(f"不存在子目录{target.name}")
         if not target.is_dir():
             raise NotADirectoryError(f"期望是一个目录，但传入的是文件: {target.name}")
