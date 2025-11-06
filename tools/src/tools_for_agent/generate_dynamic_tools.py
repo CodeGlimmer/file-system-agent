@@ -2,6 +2,7 @@
 并将生成的实例的方法包装为LangChain工具，以便agent使用。
 """
 
+from regex import F
 from tools.src.file_system_tools.working_dir import WorkingDir
 from langchain.tools import tool, BaseTool
 from pathlib import Path
@@ -58,9 +59,12 @@ def generate_working_dir_tool(
         """获取从项目根目录到当前目录的路径，字符串形式
 
         Returns:
-            str: 从项目根目录到当前目录的路径的字符串
+            str: 从项目根目录到当前目录的路径的字符串，以及当前目录的完整路径
         """
-        return " -> ".join([dir.name for dir in working_dir.trace])
+        res = "trace: " \
+            + " -> ".join([dir.name for dir in working_dir.trace]) \
+            + f"\n full_path: {str(working_dir.where.resolve())}"
+        return res
 
     tools.append(get_current_directory)
 
@@ -71,7 +75,6 @@ def generate_working_dir_tool(
         Returns:
             str: 当前目录内容的描述字符串
         """
-        ipdb.set_trace()
         try:
             contents = working_dir.walk_dir()
             if not contents:

@@ -17,7 +17,7 @@ from tools.src.file_system_tools.working_dir import WorkingDir
 
 # 设置环境变量，定义模型
 load_dotenv()
-controller_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
+controller_model = ChatDeepSeek(model="deepseek-reasoner", temperature=0)
 tool_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 配置tool_agent
@@ -76,13 +76,15 @@ def file_expert(task: str) -> str:
         
     except Exception as e:
         return f"文件操作失败: {str(e)}"
-
-with open('agents/prompts/controller_agent.md', 'r', encoding='utf-8') as f:
+dynamic_tools.append(file_expert)
+with open('agents/prompts/directory_agent.md', 'r', encoding='utf-8') as f:
     CONTROLLER_PROMPT = f.read()
+if not CONTROLLER_PROMPT:
+    raise ValueError("无法读取directory_agent的提示词")
 # 构建controller_agent
 controller_agent = create_agent(
     model=controller_model,
-    tools=dynamic_tools.append(file_expert),
+    tools=dynamic_tools,
     system_prompt=CONTROLLER_PROMPT,
     checkpointer=InMemorySaver(),
 )
