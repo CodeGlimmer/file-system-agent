@@ -1,6 +1,7 @@
 """
 测试 WorkingDir 类的所有功能
 """
+
 import pytest
 import sys
 import os
@@ -35,7 +36,7 @@ class TestWorkingDirInit:
         # 创建一个子目录
         subdir = tmp_path / "subdir"
         subdir.mkdir()
-        
+
         # 切换到临时目录
         original_cwd = Path.cwd()
         try:
@@ -55,10 +56,10 @@ class TestChangeToChildDir:
         # 创建子目录
         child_dir = tmp_path / "child"
         child_dir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(child_dir)
-        
+
         assert wd.where == child_dir
         assert len(wd.trace) == 2
         assert wd.trace[-1] == child_dir
@@ -67,7 +68,7 @@ class TestChangeToChildDir:
         """测试切换到不存在的子目录，应该抛出 FileNotFoundError"""
         wd = WorkingDir(tmp_path)
         nonexistent = tmp_path / "nonexistent"
-        
+
         with pytest.raises(FileNotFoundError, match="不存在子目录"):
             wd.change_to_child_dir(nonexistent)
 
@@ -76,9 +77,9 @@ class TestChangeToChildDir:
         # 创建一个文件
         test_file = tmp_path / "test.txt"
         test_file.touch()
-        
+
         wd = WorkingDir(tmp_path)
-        
+
         with pytest.raises(NotADirectoryError, match="期望是一个目录，但传入的是文件"):
             wd.change_to_child_dir(test_file)
 
@@ -87,14 +88,16 @@ class TestChangeToChildDir:
         # 创建一个真实目录和指向它的符号链接
         real_dir = tmp_path / "real_dir"
         real_dir.mkdir()
-        
+
         link_dir = tmp_path / "link_dir"
         try:
             link_dir.symlink_to(real_dir)
-            
+
             wd = WorkingDir(tmp_path)
-            
-            with pytest.raises(NotADirectoryError, match="期望是一个目录，但传入的是链接"):
+
+            with pytest.raises(
+                NotADirectoryError, match="期望是一个目录，但传入的是链接"
+            ):
                 wd.change_to_child_dir(link_dir)
         except OSError:
             # Windows 上可能没有权限创建符号链接，跳过此测试
@@ -107,16 +110,16 @@ class TestChangeToChildDir:
         level2 = level1 / "level2"
         level3 = level2 / "level3"
         level3.mkdir(parents=True)
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(level1)
         assert wd.where == level1
         assert len(wd.trace) == 2
-        
+
         wd.change_to_child_dir(level2)
         assert wd.where == level2
         assert len(wd.trace) == 3
-        
+
         wd.change_to_child_dir(level3)
         assert wd.where == level3
         assert len(wd.trace) == 4
@@ -129,11 +132,11 @@ class TestChangeToParentDir:
         """测试从子目录切换到父目录"""
         child_dir = tmp_path / "child"
         child_dir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(child_dir)
         assert wd.where == child_dir
-        
+
         wd.change_to_parent_dir()
         assert wd.where == tmp_path.resolve()
         assert len(wd.trace) == 1
@@ -142,7 +145,7 @@ class TestChangeToParentDir:
         """测试在根目录时切换到父目录，应该保持不变并打印提示"""
         wd = WorkingDir(tmp_path)
         wd.change_to_parent_dir()
-        
+
         assert wd.where == tmp_path.resolve()
         captured = capsys.readouterr()
         assert "已经是顶层目录" in captured.out
@@ -154,22 +157,22 @@ class TestChangeToParentDir:
         level2 = level1 / "level2"
         level3 = level2 / "level3"
         level3.mkdir(parents=True)
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(level1)
         wd.change_to_child_dir(level2)
         wd.change_to_child_dir(level3)
-        
+
         assert len(wd.trace) == 4
-        
+
         wd.change_to_parent_dir()
         assert wd.where == level2
         assert len(wd.trace) == 3
-        
+
         wd.change_to_parent_dir()
         assert wd.where == level1
         assert len(wd.trace) == 2
-        
+
         wd.change_to_parent_dir()
         assert wd.where == tmp_path.resolve()
         assert len(wd.trace) == 1
@@ -188,10 +191,10 @@ class TestWhereProperty:
         """测试导航后 where 属性正确更新"""
         child_dir = tmp_path / "child"
         child_dir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         initial_where = wd.where
-        
+
         wd.change_to_child_dir(child_dir)
         assert wd.where != initial_where
         assert wd.where == child_dir
@@ -212,11 +215,11 @@ class TestTraceProperty:
         child1 = tmp_path / "child1"
         child2 = child1 / "child2"
         child2.mkdir(parents=True)
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(child1)
         wd.change_to_child_dir(child2)
-        
+
         trace = wd.trace
         assert len(trace) == 3
         assert trace[0] == tmp_path.resolve()
@@ -227,11 +230,11 @@ class TestTraceProperty:
         """测试 trace 返回副本，修改不影响内部状态"""
         child_dir = tmp_path / "child"
         child_dir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         trace1 = wd.trace
         trace1.append(Path("/fake/path"))
-        
+
         trace2 = wd.trace
         assert len(trace2) == 1
         assert trace1 is not trace2
@@ -240,11 +243,11 @@ class TestTraceProperty:
         """测试返回父目录时 trace 正确更新"""
         child_dir = tmp_path / "child"
         child_dir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         wd.change_to_child_dir(child_dir)
         assert len(wd.trace) == 2
-        
+
         wd.change_to_parent_dir()
         assert len(wd.trace) == 1
 
@@ -256,7 +259,7 @@ class TestWalkDir:
         """测试遍历空目录"""
         wd = WorkingDir(tmp_path)
         result = wd.walk_dir()
-        
+
         assert isinstance(result, list)
         assert len(result) == 0
 
@@ -267,15 +270,15 @@ class TestWalkDir:
         file2 = tmp_path / "file2.py"
         file1.write_text("test content 1")
         file2.write_text("test content 2")
-        
+
         wd = WorkingDir(tmp_path)
         result = wd.walk_dir()
-        
+
         assert len(result) == 2
         file_names = {item["file_name"] for item in result}
         assert "file1.txt" in file_names
         assert "file2.py" in file_names
-        
+
         for item in result:
             assert item["file_type"] == "file"
             assert item["target"] is None
@@ -287,10 +290,10 @@ class TestWalkDir:
         subdir2 = tmp_path / "subdir2"
         subdir1.mkdir()
         subdir2.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         result = wd.walk_dir()
-        
+
         assert len(result) == 2
         for item in result:
             assert item["file_type"] == "directory"
@@ -301,16 +304,16 @@ class TestWalkDir:
         # 创建文件
         file1 = tmp_path / "readme.txt"
         file1.write_text("readme")
-        
+
         # 创建目录
         subdir = tmp_path / "subdir"
         subdir.mkdir()
-        
+
         wd = WorkingDir(tmp_path)
         result = wd.walk_dir()
-        
+
         assert len(result) == 2
-        
+
         types = {item["file_name"]: item["file_type"] for item in result}
         assert types["readme.txt"] == "file"
         assert types["subdir"] == "directory"
@@ -320,14 +323,14 @@ class TestWalkDir:
         # 创建一个文件和指向它的链接
         real_file = tmp_path / "real_file.txt"
         real_file.write_text("content")
-        
+
         link_file = tmp_path / "link_file.txt"
         try:
             link_file.symlink_to(real_file)
-            
+
             wd = WorkingDir(tmp_path)
             result = wd.walk_dir()
-            
+
             # 找到链接项
             link_items = [item for item in result if item["file_type"] == "link"]
             assert len(link_items) == 1
@@ -340,17 +343,17 @@ class TestWalkDir:
         """测试 walk_dir 返回的元数据结构"""
         test_file = tmp_path / "test.txt"
         test_file.write_text("test")
-        
+
         wd = WorkingDir(tmp_path)
         result = wd.walk_dir()
-        
+
         assert len(result) == 1
         metadata = result[0]
-        
+
         # 验证所有必需的键都存在
         required_keys = {"file_name", "full_name", "file_type", "size", "target"}
         assert set(metadata.keys()) == required_keys
-        
+
         # 验证数据类型
         assert isinstance(metadata["file_name"], str)
         assert isinstance(metadata["full_name"], str)
@@ -363,22 +366,22 @@ class TestWalkDir:
         # 创建目录结构
         subdir = tmp_path / "subdir"
         subdir.mkdir()
-        
+
         file_in_root = tmp_path / "root_file.txt"
         file_in_root.touch()
-        
+
         file_in_subdir = subdir / "sub_file.txt"
         file_in_subdir.touch()
-        
+
         wd = WorkingDir(tmp_path)
-        
+
         # 在根目录遍历
         root_result = wd.walk_dir()
         assert len(root_result) == 2
-        
+
         # 切换到子目录
         wd.change_to_child_dir(subdir)
-        
+
         # 在子目录遍历
         sub_result = wd.walk_dir()
         assert len(sub_result) == 1
@@ -394,31 +397,31 @@ class TestIntegrationScenarios:
         docs = tmp_path / "docs"
         src = tmp_path / "src"
         tests = tmp_path / "tests"
-        
+
         docs.mkdir()
         src.mkdir()
         tests.mkdir()
-        
+
         (docs / "readme.md").touch()
         (src / "main.py").touch()
         (tests / "test_main.py").touch()
-        
+
         wd = WorkingDir(tmp_path)
-        
+
         # 遍历根目录
         root_items = wd.walk_dir()
         assert len(root_items) == 3
-        
+
         # 导航到 src
         wd.change_to_child_dir(src)
         src_items = wd.walk_dir()
         assert len(src_items) == 1
         assert src_items[0]["file_name"] == "main.py"
-        
+
         # 返回根目录
         wd.change_to_parent_dir()
         assert wd.where == tmp_path.resolve()
-        
+
         # 检查 trace
         trace = wd.trace
         assert len(trace) == 1
@@ -429,23 +432,23 @@ class TestIntegrationScenarios:
         # 创建深层目录
         deep_path = tmp_path / "a" / "b" / "c" / "d"
         deep_path.mkdir(parents=True)
-        
+
         wd = WorkingDir(tmp_path)
-        
+
         # 逐层向下导航
         current = tmp_path
         for dirname in ["a", "b", "c", "d"]:
             current = current / dirname
             wd.change_to_child_dir(current)
-        
+
         # 验证当前位置和 trace
         assert wd.where == deep_path
         assert len(wd.trace) == 5
-        
+
         # 逐层返回
         for _ in range(4):
             wd.change_to_parent_dir()
-        
+
         assert wd.where == tmp_path.resolve()
         assert len(wd.trace) == 1
 
@@ -460,7 +463,7 @@ def temp_workspace(tmp_path):
     (tmp_path / "docs").mkdir()
     (tmp_path / "README.md").touch()
     (tmp_path / "src" / "main.py").touch()
-    
+
     return tmp_path
 
 

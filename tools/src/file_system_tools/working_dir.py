@@ -4,7 +4,8 @@ from .file_metadata import FileMetadata
 
 
 class WorkingDir:
-    
+    """工作目录类，限制了agent的tool的能力范围，防止越权访问文件系统，属于内部工具，使用pathlib管理路径"""
+
     def __init__(self, root: Path):
         """建立工作目录，类似与一棵树，建立是提供文件树的树根
 
@@ -17,8 +18,10 @@ class WorkingDir:
             raise FileNotFoundError(f"路径{root.name}不存在")
         self._root: Path = root.resolve()
         self._now: Path = self._root
-        self._trace: list[Path] = [self._root]  # 记录路径变更轨迹，初始为根目录, stack结构
-        
+        self._trace: list[Path] = [
+            self._root
+        ]  # 记录路径变更轨迹，初始为根目录, stack结构
+
     def change_to_child_dir(self, target: Path):
         """切换到当前目录下的子目录，但是不可以是符号链接否则或超出权限范围
 
@@ -37,14 +40,14 @@ class WorkingDir:
             raise NotADirectoryError(f"期望是一个目录，但传入的是链接: {target.name}")
         self._now = target  # 更新当前目录
         self._trace.append(self._now)
-        
+
     def change_to_parent_dir(self):
         if self._now == self._root:
             print("已经是顶层目录")
             return
         self._now = self._now.resolve().parent
         self._trace.pop()
-        
+
     @property
     def where(self) -> Path:
         """返回当前工作目录路径
@@ -53,7 +56,7 @@ class WorkingDir:
             Path: 当前工作目录的路径
         """
         return self._now
-    
+
     @property
     def trace(self) -> list[Path]:
         """返回当前工作目录的路径变更轨迹
@@ -62,7 +65,7 @@ class WorkingDir:
             list[Path]: 路径变更轨迹列表
         """
         return self._trace.copy()
-    
+
     def walk_dir(self) -> list[FileMetadata]:
         """遍历当前工作目录，返回目录内容的元信息列表
 
