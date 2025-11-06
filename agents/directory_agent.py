@@ -19,7 +19,7 @@ model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 # 读取提示词
 with open("agents/prompts/directory_agent.md", "r", encoding="utf-8") as f:
     SYSTEM_PROMPT = f.read()
-    
+
 agent = create_agent(
     model=model,
     tools=tools,
@@ -28,7 +28,7 @@ agent = create_agent(
 )
 
 if __name__ == "__main__":
-     while True:
+    while True:
         user_input = input("user> ")
         if user_input.lower() == "exit":
             break

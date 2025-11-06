@@ -5,6 +5,7 @@
 from tools.src.file_system_tools.working_dir import WorkingDir
 from langchain.tools import tool, BaseTool
 from pathlib import Path
+import ipdb
 
 
 def generate_working_dir_tool(
@@ -70,6 +71,7 @@ def generate_working_dir_tool(
         Returns:
             str: 当前目录内容的描述字符串
         """
+        ipdb.set_trace()
         try:
             contents = working_dir.walk_dir()
             if not contents:
