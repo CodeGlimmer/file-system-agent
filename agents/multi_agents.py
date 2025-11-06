@@ -9,6 +9,7 @@ from tools.src.tools_for_agent.static_tools import (
     add_file,
     delete_file,
     rename_file,
+    excute_python,
 )
 from tools.src.tools_for_agent.generate_dynamic_tools import generate_working_dir_tool
 from langgraph.checkpoint.memory import InMemorySaver
@@ -21,7 +22,7 @@ controller_model = ChatDeepSeek(model="deepseek-reasoner", temperature=0)
 tool_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 配置tool_agent
-static_tools = [read_file, write_file, add_file, delete_file, rename_file]
+static_tools = [read_file, write_file, add_file, delete_file, rename_file, excute_python]
 with open("agents/prompts/tool_agent.md", 'r', encoding="utf-8") as f:
     TOOL_PROMPT = f.read()
 tool_agent = create_agent(
@@ -50,6 +51,7 @@ def file_expert(task: str) -> str:
     - 重命名/移动文件
     - 总结文件内容
     - 回答关于文件内容的问题
+    - 执行python文件
     
     Args:
         task: 描述要执行的文件操作任务，例如：
@@ -58,6 +60,7 @@ def file_expert(task: str) -> str:
             - "将这段代码写入 E:/code/utils.py: [代码内容]"
             - "删除 C:/temp/old.txt"
             - "把 C:/old.txt 重命名为 C:/new.txt"
+            - "执行 E:/code/script.py"
     
     Returns:
         操作结果或文件内容

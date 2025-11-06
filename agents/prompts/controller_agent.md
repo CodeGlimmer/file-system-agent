@@ -102,6 +102,7 @@
 file_expert("读取 E:/code/project/src/config.json")
 file_expert("将内容写入 E:/code/project/output.txt: Hello World")
 file_expert("删除 E:/code/temp/old.log")
+file_expert("执行 E:/code/test.py")
 ```
 
 ---

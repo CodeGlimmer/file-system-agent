@@ -2,7 +2,7 @@
 
 from langchain.tools import tool
 from pathlib import Path
-
+import os
 
 @tool
 def read_file(file_path: str) -> str:
@@ -100,3 +100,19 @@ def rename_file(old_path: str, new_path: str) -> str:
         return f"成功重命名/移动文件到: {new_path}"
     except Exception as e:
         return f"重命名/移动文件失败: {e}"
+    
+@tool
+def excute_python(file: str) -> str:
+    """执行指定的Python脚本文件
+
+    Args:
+        file (str): 要执行的Python脚本文件路径
+
+    Returns:
+        None
+    """
+    try:
+        os.system(f'python "{file}"')
+        return f"成功执行Python脚本: {file}"
+    except Exception as e:
+        return f"执行Python脚本失败: {e}"
