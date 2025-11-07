@@ -24,20 +24,28 @@ from pathlib import Path
 
 def generate_parser():
     parser = argparse.ArgumentParser(description="文件系统管理智能体CLI")
-    parser.add_argument('-r', '--root', type=str, required=True)
+    parser.add_argument("-r", "--root", type=str, required=True)
     return parser
+
 
 # 设置环境变量，获取命令行参数，以及提示词目录
 load_dotenv()
 args = generate_parser().parse_args()
-prompt_dir: Path = importlib.resources.files(__package__).parent/"agents"/"prompts"
+prompt_dir: Path = importlib.resources.files(__package__).parent / "agents" / "prompts"  # type: ignore
 # 配置model
 controller_model = ChatDeepSeek(model="deepseek-reasoner", temperature=0)
 tool_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 配置tool_agent
-static_tools = [read_file, write_file, add_file, delete_file, rename_file, excute_python]
-with open(prompt_dir/"tool_agent.md", 'r', encoding="utf-8") as f:
+static_tools = [
+    read_file,
+    write_file,
+    add_file,
+    delete_file,
+    rename_file,
+    excute_python,
+]
+with open(prompt_dir / "tool_agent.md", "r", encoding="utf-8") as f:
     TOOL_PROMPT = f.read()
 tool_agent = create_agent(
     model=tool_model,
@@ -52,11 +60,13 @@ working_dir: WorkingDir | None
 dynamic_tools, working_dir = generate_working_dir_tool(root_path=args.root)
 if dynamic_tools is None or working_dir is None:
     raise ValueError("无法创建WorkingDir工具")
+
+
 # 将智能体改造为tool
 @tool
 def file_expert(task: str) -> str:
     """文件操作专家。负责所有文件相关操作。
-    
+
     可以执行：
     - 读取文件内容
     - 写入/覆盖文件
@@ -66,7 +76,7 @@ def file_expert(task: str) -> str:
     - 总结文件内容
     - 回答关于文件内容的问题
     - 执行python文件
-    
+
     Args:
         task: 描述要执行的文件操作任务，例如：
             - "读取 C:/project/config.json"
@@ -75,30 +85,29 @@ def file_expert(task: str) -> str:
             - "删除 C:/temp/old.txt"
             - "把 C:/old.txt 重命名为 C:/new.txt"
             - "执行 E:/code/script.py"
-    
+
     Returns:
         操作结果或文件内容
     """
     try:
         # 调用 tool_agent 处理任务
         config: RunnableConfig = {"configurable": {"thread_id": "file_expert_thread"}}
-        result = tool_agent.invoke(
-            {"messages": [HumanMessage(content=task)]},
-            config
-        )
-        
+        result = tool_agent.invoke({"messages": [HumanMessage(content=task)]}, config)
+
         # 提取最后的响应
         last_message = result["messages"][-1]
         return last_message.content
-        
+
     except Exception as e:
         return f"文件操作失败: {str(e)}"
+
+
 dynamic_tools.append(file_expert)
-with open(prompt_dir/"directory_agent.md", 'r', encoding='utf-8') as f:
+with open(prompt_dir / "directory_agent.md", "r", encoding="utf-8") as f:
     CONTROLLER_PROMPT = f.read()
 if not CONTROLLER_PROMPT:
     raise ValueError("无法读取directory_agent的提示词")
-with open(prompt_dir/"summary_agent.md", 'r', encoding='utf-8') as f:
+with open(prompt_dir / "summary_agent.md", "r", encoding="utf-8") as f:
     SUMMARY_PROMPT = f.read()
 if not SUMMARY_PROMPT:
     raise ValueError("无法读取summary_agent的提示词")
@@ -115,7 +124,7 @@ controller_agent = create_agent(
             messages_to_keep=20,
             summary_prompt=SUMMARY_PROMPT,
         )
-    ]
+    ],
 )
 
 
@@ -130,6 +139,7 @@ def main():
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)
+
 
 if __name__ == "__main__":
     main()

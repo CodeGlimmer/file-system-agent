@@ -59,9 +59,11 @@ def generate_working_dir_tool(
         Returns:
             str: 从项目根目录到当前目录的路径的字符串，以及当前目录的完整路径
         """
-        res = "trace: " \
-            + " -> ".join([dir.name for dir in working_dir.trace]) \
+        res = (
+            "trace: "
+            + " -> ".join([dir.name for dir in working_dir.trace])
             + f"\n full_path: {str(working_dir.where.resolve())}"
+        )
         return res
 
     tools.append(get_current_directory)

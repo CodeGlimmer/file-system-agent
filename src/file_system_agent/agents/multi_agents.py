@@ -24,8 +24,19 @@ controller_model = ChatDeepSeek(model="deepseek-reasoner", temperature=0)
 tool_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 配置tool_agent
-static_tools = [read_file, write_file, add_file, delete_file, rename_file, excute_python]
-with importlib.resources.files(f"{__package__}.prompts").joinpath("tool_agent.md").open("r", encoding="utf-8") as f:
+static_tools = [
+    read_file,
+    write_file,
+    add_file,
+    delete_file,
+    rename_file,
+    excute_python,
+]
+with (
+    importlib.resources.files(f"{__package__}.prompts")
+    .joinpath("tool_agent.md")
+    .open("r", encoding="utf-8") as f
+):
     TOOL_PROMPT = f.read()
 tool_agent = create_agent(
     model=tool_model,
@@ -40,11 +51,14 @@ working_dir: WorkingDir | None
 dynamic_tools, working_dir = generate_working_dir_tool(root_path="E:/code")
 if dynamic_tools is None or working_dir is None:
     raise ValueError("无法创建WorkingDir工具")
+
+
 # 将智能体改造为tool
 @tool
 def file_expert(task: str) -> str:
-    """文件操作专家。负责所有文件相关操作。
-    
+    """
+    文件操作专家。负责所有文件相关操作。
+
     可以执行：
     - 读取文件内容
     - 写入/覆盖文件
@@ -54,7 +68,7 @@ def file_expert(task: str) -> str:
     - 总结文件内容
     - 回答关于文件内容的问题
     - 执行python文件
-    
+
     Args:
         task: 描述要执行的文件操作任务，例如：
             - "读取 C:/project/config.json"
@@ -63,7 +77,7 @@ def file_expert(task: str) -> str:
             - "删除 C:/temp/old.txt"
             - "把 C:/old.txt 重命名为 C:/new.txt"
             - "执行 E:/code/script.py"
-    
+
     Returns:
         操作结果或文件内容
     """
@@ -72,17 +86,23 @@ def file_expert(task: str) -> str:
         config = {"configurable": {"thread_id": "file_expert_thread"}}
         result = tool_agent.invoke(
             {"messages": [HumanMessage(content=task)]},
-            config
+            config,  # type: ignore
         )
-        
+
         # 提取最后的响应
         last_message = result["messages"][-1]
         return last_message.content
-        
+
     except Exception as e:
         return f"文件操作失败: {str(e)}"
+
+
 dynamic_tools.append(file_expert)
-with importlib.resources.files(f"{__package__}.prompts").joinpath("directory_agent.md").open("r", encoding="utf-8") as f:
+with (
+    importlib.resources.files(f"{__package__}.prompts")
+    .joinpath("directory_agent.md")
+    .open("r", encoding="utf-8") as f
+):
     CONTROLLER_PROMPT = f.read()
 if not CONTROLLER_PROMPT:
     raise ValueError("无法读取directory_agent的提示词")
@@ -100,7 +120,8 @@ if __name__ == "__main__":
         if user_input.lower() == "exit":
             break
         res = controller_agent.invoke(
-            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"}
+            {"messages": [HumanMessage(content=user_input)]},
+            {"thread_id": "1"},  # type: ignore
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)

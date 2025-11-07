@@ -7,3 +7,4 @@ class FileMetadata(TypedDict):
     file_type: Literal["file", "directory", "link"]
     size: int
     target: str | None
+    

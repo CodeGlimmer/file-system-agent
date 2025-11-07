@@ -15,11 +15,15 @@ load_dotenv()
 tools: list[BaseTool] | None
 wd: WorkingDir | None
 tools, wd = generate_working_dir_tool(root_path="E:/code")
-    
+
 model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 读取提示词
-with importlib.resources.files(f"{__package__}.prompts").joinpath("directory_agent.md").open("r", encoding="utf-8") as f:
+with (
+    importlib.resources.files(f"{__package__}.prompts")
+    .joinpath("directory_agent.md")
+    .open("r", encoding="utf-8") as f
+):
     SYSTEM_PROMPT = f.read()
     print(SYSTEM_PROMPT)
 
@@ -36,7 +40,7 @@ if __name__ == "__main__":
         if user_input.lower() == "exit":
             break
         res = agent.invoke(
-            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"}
+            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"} # type: ignore
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)
