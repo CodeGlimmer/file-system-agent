@@ -1,1 +1,2 @@
-agents/.env
+src/file_system_agent/agents/.env
+src/file_system_agent/file_system_cli/.env
