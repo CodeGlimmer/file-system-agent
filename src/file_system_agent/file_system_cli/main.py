@@ -1,9 +1,11 @@
+import argparse
+import importlib.resources
+from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_deepseek import ChatDeepSeek
 from langchain.tools import BaseTool, tool
 from langchain.messages import HumanMessage
-from dotenv import load_dotenv
-from tools.src.tools_for_agent.static_tools import (
+from ..tools.src.tools_for_agent.static_tools import (
     read_file,
     write_file,
     add_file,
@@ -11,19 +13,31 @@ from tools.src.tools_for_agent.static_tools import (
     rename_file,
     excute_python,
 )
-from tools.src.tools_for_agent.generate_dynamic_tools import generate_working_dir_tool
+from ..tools.src.tools_for_agent.generate_dynamic_tools import generate_working_dir_tool
 from langgraph.checkpoint.memory import InMemorySaver
-from tools.src.file_system_tools.working_dir import WorkingDir
+from ..tools.src.file_system_tools.working_dir import WorkingDir
+from langchain_core.runnables import RunnableConfig
+from langchain.agents.middleware import SummarizationMiddleware
+import importlib
+from pathlib import Path
 
 
-# 设置环境变量，定义模型
+def generate_parser():
+    parser = argparse.ArgumentParser(description="文件系统管理智能体CLI")
+    parser.add_argument('-r', '--root', type=str, required=True)
+    return parser
+
+# 设置环境变量，获取命令行参数，以及提示词目录
 load_dotenv()
+args = generate_parser().parse_args()
+prompt_dir: Path = importlib.resources.files(__package__).parent/"agents"/"prompts"
+# 配置model
 controller_model = ChatDeepSeek(model="deepseek-reasoner", temperature=0)
 tool_model = ChatDeepSeek(model="deepseek-chat", temperature=0)
 
 # 配置tool_agent
 static_tools = [read_file, write_file, add_file, delete_file, rename_file, excute_python]
-with open("agents/prompts/tool_agent.md", 'r', encoding="utf-8") as f:
+with open(prompt_dir/"tool_agent.md", 'r', encoding="utf-8") as f:
     TOOL_PROMPT = f.read()
 tool_agent = create_agent(
     model=tool_model,
@@ -35,7 +49,7 @@ tool_agent = create_agent(
 # 配置主控agent的tools
 dynamic_tools: list[BaseTool] | None
 working_dir: WorkingDir | None
-dynamic_tools, working_dir = generate_working_dir_tool(root_path="E:/code")
+dynamic_tools, working_dir = generate_working_dir_tool(root_path=args.root)
 if dynamic_tools is None or working_dir is None:
     raise ValueError("无法创建WorkingDir工具")
 # 将智能体改造为tool
@@ -67,7 +81,7 @@ def file_expert(task: str) -> str:
     """
     try:
         # 调用 tool_agent 处理任务
-        config = {"configurable": {"thread_id": "file_expert_thread"}}
+        config: RunnableConfig = {"configurable": {"thread_id": "file_expert_thread"}}
         result = tool_agent.invoke(
             {"messages": [HumanMessage(content=task)]},
             config
@@ -80,25 +94,42 @@ def file_expert(task: str) -> str:
     except Exception as e:
         return f"文件操作失败: {str(e)}"
 dynamic_tools.append(file_expert)
-with open('agents/prompts/directory_agent.md', 'r', encoding='utf-8') as f:
+with open(prompt_dir/"directory_agent.md", 'r', encoding='utf-8') as f:
     CONTROLLER_PROMPT = f.read()
 if not CONTROLLER_PROMPT:
     raise ValueError("无法读取directory_agent的提示词")
+with open(prompt_dir/"summary_agent.md", 'r', encoding='utf-8') as f:
+    SUMMARY_PROMPT = f.read()
+if not SUMMARY_PROMPT:
+    raise ValueError("无法读取summary_agent的提示词")
 # 构建controller_agent
 controller_agent = create_agent(
     model=controller_model,
     tools=dynamic_tools,
     system_prompt=CONTROLLER_PROMPT,
     checkpointer=InMemorySaver(),
+    middleware=[
+        SummarizationMiddleware(
+            model=tool_model,
+            max_tokens_before_summary=4000,
+            messages_to_keep=20,
+            summary_prompt=SUMMARY_PROMPT,
+        )
+    ]
 )
 
-if __name__ == "__main__":
+
+def main():
+    user_config: RunnableConfig = {"configurable": {"thread_id": "1"}}
     while True:
         user_input = input("user> ")
         if user_input.lower() == "exit":
             break
         res = controller_agent.invoke(
-            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"}
+            {"messages": [HumanMessage(content=user_input)]}, user_config
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)
+
+if __name__ == "__main__":
+    main()

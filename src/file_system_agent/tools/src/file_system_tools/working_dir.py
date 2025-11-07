@@ -1,7 +1,6 @@
 from pathlib import Path
 from .file_type import FileType
 from .file_metadata import FileMetadata
-import ipdb
 
 
 class WorkingDir:

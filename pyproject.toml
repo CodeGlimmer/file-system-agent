@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "file-system-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Code Glimmer", email = "m15073691589@163.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "langchain>=1.0.4",
+    "langchain-deepseek>=1.0.0",
+    "langchain-ollama>=1.0.0",
+]
+
+[project.scripts]
+file-system-agent = "file_system_agent.file_system_cli.main:main"
+
+[tool.hatchling.build.targets.wheel]
+packages = ["src/file_system_agent"]
+
+[tool.hatchling.build.targets.wheel.shared-data]
+"src/file_system_agent" = "file_system_agent"

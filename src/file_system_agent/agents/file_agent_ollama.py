@@ -1,5 +1,6 @@
+import importlib.resources
 from langchain.agents import create_agent
-from tools.src.tools_for_agent.static_tools import (
+from ..tools.src.tools_for_agent.static_tools import (
     read_file,
     write_file,
     add_file,
@@ -9,13 +10,14 @@ from tools.src.tools_for_agent.static_tools import (
 from langchain_ollama import ChatOllama
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.messages import HumanMessage
+import importlib
 
 tools = [read_file, write_file, add_file, delete_file, rename_file]
 
 model = ChatOllama(model="qwen2.5:3b-instruct-q8_0", temperature=0)
 
 # 读取提示词
-with open("agents/prompts/file_agent.md", "r", encoding="utf-8") as f:
+with importlib.resources.files(f"{__package__}.prompts").joinpath("file_agent.md").open("r", encoding="utf-8") as f:
     SYSTEM_PROMPT = f.read()
 
 agent = create_agent(
