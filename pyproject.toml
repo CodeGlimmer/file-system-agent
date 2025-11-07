@@ -23,6 +23,3 @@ file-system-agent = "file_system_agent.file_system_cli.main:main"
 
 [tool.hatchling.build.targets.wheel]
 packages = ["src/file_system_agent"]
-
-[tool.hatchling.build.targets.wheel.shared-data]
-"src/file_system_agent" = "file_system_agent"
