@@ -2,11 +2,9 @@
 并将生成的实例的方法包装为LangChain工具，以便agent使用。
 """
 
-from regex import F
 from tools.src.file_system_tools.working_dir import WorkingDir
 from langchain.tools import tool, BaseTool
 from pathlib import Path
-import ipdb
 
 
 def generate_working_dir_tool(
