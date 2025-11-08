@@ -13,6 +13,7 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "dotenv>=0.9.9",
+    "fastapi[standard]>=0.121.0",
     "langchain>=1.0.4",
     "langchain-deepseek>=1.0.0",
     "langchain-ollama>=1.0.0",
@@ -23,6 +24,12 @@ file-system-agent = "file_system_agent.file_system_cli.main:main"
 
 [tool.hatchling.build.targets.wheel]
 packages = ["src/file_system_agent"]
+exclude = [
+    "src/file_system_agent/tests/",
+    "**/__pycache__/",
+    "**/*.log",
+    "src/file_system_agent/front_end/",
+]
 
 [dependency-groups]
 dev = [
