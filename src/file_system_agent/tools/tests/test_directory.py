@@ -1,6 +1,8 @@
+# type: ignore
 """
 测试 WorkingDir 类的所有功能
 """
+
 import pytest
 import sys
 import os
@@ -48,6 +50,7 @@ class TestWorkingDirInit:
 
 class TestChangeToChildDir:
     """测试切换到子目录的功能"""
+
     def test_change_to_valid_child_dir(self, tmp_path):
         """测试切换到有效的子目录"""
         # 创建子目录

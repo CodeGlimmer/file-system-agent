@@ -1,3 +1,4 @@
+# type: ignore
 import importlib.resources
 from ..tools.src.tools_for_agent.generate_dynamic_tools import generate_working_dir_tool
 from langchain.tools import BaseTool
@@ -40,7 +41,8 @@ if __name__ == "__main__":
         if user_input.lower() == "exit":
             break
         res = agent.invoke(
-            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"} # type: ignore
+            {"messages": [HumanMessage(content=user_input)]},
+            {"thread_id": "1"},  # type: ignore
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)

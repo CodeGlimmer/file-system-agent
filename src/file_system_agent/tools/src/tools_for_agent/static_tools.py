@@ -1,3 +1,5 @@
+# type: ignore
+
 """提供agent调用的静态工具，没有动态的文件树状态，比如写入，读取操作等等, 路径是字符串但是要求绝对路径"""
 
 from langchain.tools import tool

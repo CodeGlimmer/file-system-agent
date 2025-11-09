@@ -36,7 +36,8 @@ if __name__ == "__main__":
         if user_input.lower() == "exit":
             break
         res = agent.invoke(
-            {"messages": [HumanMessage(content=user_input)]}, {"thread_id": "1"} # type: ignore
+            {"messages": [HumanMessage(content=user_input)]},
+            {"thread_id": "1"},  # type: ignore
         )
         print("agent> ", end="")
         print(res["messages"][-1].content)
