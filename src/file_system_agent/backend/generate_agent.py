@@ -121,6 +121,19 @@ with open(prompt_dir / "summary_agent.md", "r", encoding="utf-8") as f:
     SUMMARY_PROMPT = f.read()
 if not SUMMARY_PROMPT:
     raise ValueError("无法读取summary_agent的提示词")
+# 对于CONTROLLER_PROMPT, 需要对内容进行补充说明，提示该智能体需要在提及目录操作时进行格式化输出
+_more_prompt = """
+# NOTE
+
+额外补充一点，对于你的回复，用户要求进行格式化输出。如果用户提及到这类相似的问题，比如：
+
+- "列出当前目录下的所有文件和文件夹"
+- "显示 E:/project 目录的内容"
+- "告诉我 D:/data 目录下有什么"
+
+请务必将回复格式的"with_file_system"字段设置为True，并且在"file_system"字段中以列表形式返回目录内容, 具体格式请参考具体的说明。
+"""
+CONTROLLER_PROMPT += _more_prompt
 
 
 def create_controller_agent(root_path: str):
