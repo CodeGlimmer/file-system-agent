@@ -21,6 +21,7 @@ dependencies = [
 
 [project.scripts]
 file-system-agent = "file_system_agent.file_system_cli.main:main"
+file-system-agent-gui = "file_system_agent.backend.main:main"
 
 [tool.hatchling.build.targets.wheel]
 packages = ["src/file_system_agent"]

@@ -35,7 +35,6 @@ class TestWorkingDirInit:
         # 创建一个子目录
         subdir = tmp_path / "subdir"
         subdir.mkdir()
-
         # 切换到临时目录
         original_cwd = Path.cwd()
         try:
@@ -49,7 +48,6 @@ class TestWorkingDirInit:
 
 class TestChangeToChildDir:
     """测试切换到子目录的功能"""
-
     def test_change_to_valid_child_dir(self, tmp_path):
         """测试切换到有效的子目录"""
         # 创建子目录

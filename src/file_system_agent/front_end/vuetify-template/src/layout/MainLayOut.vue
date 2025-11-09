@@ -156,9 +156,9 @@
                 </v-col>
                 
             <!-- 浮动侧边栏 -->
-            <div class="floating-sidebar" v-ripple>
-                <v-card class="sidebar-card fill-height" elevation="12" rounded="lg">
-                    <DirView :items="items"/>
+            <div class="floating-sidebar">
+                <v-card class="sidebar-card h-100" elevation="12" rounded="lg">
+                    <DirView :items="items" class="h-100"/>
                 </v-card>
             </div>
             </v-row>

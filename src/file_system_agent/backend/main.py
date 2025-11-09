@@ -1,17 +1,25 @@
 import importlib.resources
 from typing import Optional, TypedDict
 import importlib
+import argparse
 
 from fastapi import FastAPI, staticfiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from langchain.messages import HumanMessage
 from langchain_core.runnables import RunnableConfig
+from pydantic_core import ArgsKwargs
 import uvicorn
 
 from .generate_agent import create_controller_agent
 
-html_file = importlib.resources.files(__package__) / 'dist'
+def generate_parser():
+    parser = argparse.ArgumentParser(description="文件系统管理智能体CLI")
+    parser.add_argument("-r", "--root", type=str, required=True)
+    return parser
+
+args = generate_parser().parse_args()
+html_file = importlib.resources.files(__package__) / 'html'
 
 class MessageRequest(BaseModel):
     content: str
@@ -36,7 +44,7 @@ class ReplyResponse(BaseModel):
         如果不包含文件系统信息，则为返回空值。
     """)
 
-agent = create_controller_agent('E:/code')
+agent = create_controller_agent(args.root)
 
 app = FastAPI()
 
