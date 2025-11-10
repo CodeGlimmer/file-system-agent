@@ -1,6 +1,6 @@
 # type: ignore
 
-"""提供agent调用的静态工具，没有动态的文件树状态，比如写入，读取操作等等, 路径是字符串但是要求绝对路径"""
+"""提供agent调用的静态工具，不涉及动态的文件树状态，比如写入，读取操作等等, 路径是字符串但是要求绝对路径"""
 
 from langchain.tools import tool
 from pathlib import Path
@@ -16,6 +16,9 @@ def read_file(file_path: str) -> str:
 
     Returns:
         str: 文件内容
+
+    Raises:
+        FileNotFoundError: 文件无法正常打开
     """
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -110,10 +113,13 @@ def excute_python(file: str) -> str:
     """执行指定的Python脚本文件
 
     Args:
-        file (str): 要执行的Python脚本文件路径
+        file (str): 要执行的Python脚本文件路径, 需要是完整的路径
 
     Returns:
         None
+
+    Raises:
+        Exception: 如果执行过程中出现错误，则抛出异常
     """
     try:
         os.system(f'python "{file}"')

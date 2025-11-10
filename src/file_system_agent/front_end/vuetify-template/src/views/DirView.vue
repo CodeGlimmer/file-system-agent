@@ -6,9 +6,7 @@
         <v-icon size="28" class="mr-3">mdi-folder-open</v-icon>
         <span class="text-h5 font-weight-bold">文件目录</span>
         <v-spacer></v-spacer>
-        <v-chip color="white" variant="outlined" size="small">
-          {{ items.length }} 项
-        </v-chip>
+        <v-chip color="white" variant="outlined" size="small"> {{ items.length }} 项 </v-chip>
       </v-card-title>
 
       <v-divider></v-divider>
@@ -114,14 +112,7 @@
 
         <!-- 网格视图 -->
         <v-row v-else dense>
-          <v-col
-            v-for="(item, index) in filteredItems"
-            :key="index"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-          >
+          <v-col v-for="(item, index) in filteredItems" :key="index" cols="12" sm="6" md="4" lg="3">
             <v-card
               class="file-card"
               elevation="2"
@@ -134,7 +125,10 @@
                   <v-icon :icon="getItemIcon(item)" size="48" color="white"></v-icon>
                 </v-avatar>
 
-                <v-card-title class="text-center text-body-1 px-2 pb-1" style="word-break: break-word">
+                <v-card-title
+                  class="text-center text-body-1 px-2 pb-1"
+                  style="word-break: break-word"
+                >
                   {{ item.file_name }}
                 </v-card-title>
 
@@ -161,12 +155,7 @@
               <v-divider></v-divider>
 
               <v-card-actions class="justify-center">
-                <v-btn
-                  size="small"
-                  variant="text"
-                  color="primary"
-                  @click.stop="() => {}"
-                >
+                <v-btn size="small" variant="text" color="primary" @click.stop="() => {}">
                   <v-icon size="18" class="mr-1">mdi-information</v-icon>
                   详情
                 </v-btn>
@@ -199,9 +188,9 @@ import { ref, computed } from 'vue'
 const props = defineProps({
   items: {
     type: Array,
-    default: () => []
+    default: () => [],
     // 数组元素格式: { file_name, full_name, file_type, size, target }
-  }
+  },
 })
 
 // Emit
@@ -217,9 +206,9 @@ const filteredItems = computed(() => {
     return props.items
   }
   const query = searchQuery.value.toLowerCase()
-  return props.items.filter(item => 
-    item.file_name.toLowerCase().includes(query) ||
-    item.full_name.toLowerCase().includes(query)
+  return props.items.filter(
+    (item) =>
+      item.file_name.toLowerCase().includes(query) || item.full_name.toLowerCase().includes(query),
   )
 })
 
@@ -234,29 +223,29 @@ const getItemIcon = (item) => {
       // 根据文件扩展名返回不同图标
       const ext = item.file_name.split('.').pop()?.toLowerCase()
       const iconMap = {
-        'pdf': 'mdi-file-pdf-box',
-        'doc': 'mdi-file-word',
-        'docx': 'mdi-file-word',
-        'xls': 'mdi-file-excel',
-        'xlsx': 'mdi-file-excel',
-        'ppt': 'mdi-file-powerpoint',
-        'pptx': 'mdi-file-powerpoint',
-        'jpg': 'mdi-file-image',
-        'jpeg': 'mdi-file-image',
-        'png': 'mdi-file-image',
-        'gif': 'mdi-file-image',
-        'mp4': 'mdi-file-video',
-        'avi': 'mdi-file-video',
-        'mp3': 'mdi-file-music',
-        'wav': 'mdi-file-music',
-        'zip': 'mdi-folder-zip',
-        'rar': 'mdi-folder-zip',
-        'txt': 'mdi-file-document',
-        'js': 'mdi-language-javascript',
-        'py': 'mdi-language-python',
-        'java': 'mdi-language-java',
-        'html': 'mdi-language-html5',
-        'css': 'mdi-language-css3',
+        pdf: 'mdi-file-pdf-box',
+        doc: 'mdi-file-word',
+        docx: 'mdi-file-word',
+        xls: 'mdi-file-excel',
+        xlsx: 'mdi-file-excel',
+        ppt: 'mdi-file-powerpoint',
+        pptx: 'mdi-file-powerpoint',
+        jpg: 'mdi-file-image',
+        jpeg: 'mdi-file-image',
+        png: 'mdi-file-image',
+        gif: 'mdi-file-image',
+        mp4: 'mdi-file-video',
+        avi: 'mdi-file-video',
+        mp3: 'mdi-file-music',
+        wav: 'mdi-file-music',
+        zip: 'mdi-folder-zip',
+        rar: 'mdi-folder-zip',
+        txt: 'mdi-file-document',
+        js: 'mdi-language-javascript',
+        py: 'mdi-language-python',
+        java: 'mdi-language-java',
+        html: 'mdi-language-html5',
+        css: 'mdi-language-css3',
       }
       return iconMap[ext] || 'mdi-file'
     default:
@@ -274,24 +263,24 @@ const getItemColor = (item) => {
     case 'file':
       const ext = item.file_name.split('.').pop()?.toLowerCase()
       const colorMap = {
-        'pdf': 'red',
-        'doc': 'blue',
-        'docx': 'blue',
-        'xls': 'green',
-        'xlsx': 'green',
-        'ppt': 'orange',
-        'pptx': 'orange',
-        'jpg': 'purple',
-        'jpeg': 'purple',
-        'png': 'purple',
-        'gif': 'purple',
-        'mp4': 'pink',
-        'mp3': 'teal',
-        'zip': 'brown',
-        'txt': 'grey',
-        'js': 'yellow',
-        'py': 'blue-grey',
-        'html': 'deep-orange',
+        pdf: 'red',
+        doc: 'blue',
+        docx: 'blue',
+        xls: 'green',
+        xlsx: 'green',
+        ppt: 'orange',
+        pptx: 'orange',
+        jpg: 'purple',
+        jpeg: 'purple',
+        png: 'purple',
+        gif: 'purple',
+        mp4: 'pink',
+        mp3: 'teal',
+        zip: 'brown',
+        txt: 'grey',
+        js: 'yellow',
+        py: 'blue-grey',
+        html: 'deep-orange',
       }
       return colorMap[ext] || 'blue-grey'
     default:
@@ -412,11 +401,26 @@ const handleItemClick = (item) => {
 }
 
 /* 添加延迟效果 */
-.file-item:nth-child(1), .file-card:nth-child(1) { animation-delay: 0.05s; }
-.file-item:nth-child(2), .file-card:nth-child(2) { animation-delay: 0.1s; }
-.file-item:nth-child(3), .file-card:nth-child(3) { animation-delay: 0.15s; }
-.file-item:nth-child(4), .file-card:nth-child(4) { animation-delay: 0.2s; }
-.file-item:nth-child(5), .file-card:nth-child(5) { animation-delay: 0.25s; }
+.file-item:nth-child(1),
+.file-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.file-item:nth-child(2),
+.file-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.file-item:nth-child(3),
+.file-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.file-item:nth-child(4),
+.file-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.file-item:nth-child(5),
+.file-card:nth-child(5) {
+  animation-delay: 0.25s;
+}
 
 /* 滚动条美化 */
 .v-list::-webkit-scrollbar {
