@@ -48,7 +48,7 @@
                                             <span class="ml-2 text-caption">AI正在思考...</span>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- 普通消息 -->
                                     <div v-else>
                                         <div class="d-flex align-start">
@@ -57,14 +57,14 @@
                                                 size="32"
                                                 class="mr-3"
                                             >
-                                                <v-icon 
-                                                    size="18" 
+                                                <v-icon
+                                                    size="18"
                                                     :color="message.type === 'user' ? 'primary' : 'white'"
                                                 >
                                                     {{ message.type === 'user' ? 'mdi-account' : 'mdi-robot' }}
                                                 </v-icon>
                                             </v-avatar>
-                                            
+
                                             <div class="flex-grow-1">
                                                 <!-- 消息内容 -->
                                                 <div
@@ -78,7 +78,7 @@
                                                 >
                                                     {{ message.content }}
                                                 </div>
-                                                
+
                                                 <!-- 时间戳 -->
                                                 <div class="text-caption opacity-70 mt-2">
                                                     {{ formatTime(message.timestamp) }}
@@ -90,7 +90,7 @@
                             </v-card>
                         </div>
                     </div>
-                    
+
                     <!-- 固定输入区域 -->
                     <div class="input-area-fixed rounded-xl">
                         <v-divider></v-divider>
@@ -111,7 +111,7 @@
                                         :disabled="isSending"
                                         class="message-input"
                                     ></v-textarea>
-                                    
+
                                     <div class="d-flex align-center justify-space-between mt-2">
                                         <div class="d-flex align-center">
                                             <!-- 语音输入按钮 -->
@@ -123,7 +123,7 @@
                                                 @click="toggleVoiceInput"
                                                 :disabled="isSending"
                                             ></v-btn
-                                            
+
                                             <!-- 语音状态提示 -->
                                             <v-chip
                                                 v-if="isListening"
@@ -135,7 +135,7 @@
                                                 正在录音...
                                             </v-chip>
                                         </div>
-                                        
+
                                         <!-- 发送按钮 -->
                                         <v-btn
                                             color="primary"
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                 </v-col>
-                
+
             <!-- 浮动侧边栏 -->
             <div class="floating-sidebar">
                 <v-card class="sidebar-card h-100" elevation="12" rounded="lg">
@@ -200,9 +200,9 @@ const onClick = () => {
 // 发送消息
 const sendMessage = async () => {
     if (!inputText.value.trim() || isSending.value) return
-    
+
     isSending.value = true
-    
+
     // 添加用户消息
     const userMessage = {
         id: Date.now(),
@@ -212,16 +212,16 @@ const sendMessage = async () => {
         markdown: false
     }
 
-    
+
     messages.value.push(userMessage)
     const messageText = inputText.value.trim()
     inputText.value = ''
-    
+
     await nextTick()
     scrollToBottom()
-    
+
     await AIResponse(messageText)
-    
+
     isSending.value = false
 }
 
@@ -234,17 +234,17 @@ const AIResponse = async (userText) => {
         timestamp: new Date(),
         isTyping: true
     }
-    
+
     messages.value.push(typingMessage)
     await nextTick()
     scrollToBottom()
-    
+
     // 获取回复消息
     const { data: { reply, with_file_system, file_system} } = await getMessage(userText)
     console.log('AI回复:', reply)
     // 移除打字指示器
     messages.value = messages.value.filter(msg => msg.id !== 'typing')
-    
+
     // 生成AI回复
     const aiMessage = {
         id: Date.now(),
@@ -256,7 +256,7 @@ const AIResponse = async (userText) => {
     if (with_file_system && file_system) {
         items.value = file_system
     }
-    
+
     messages.value.push(aiMessage)
     await nextTick()
     scrollToBottom()
@@ -267,26 +267,26 @@ const initVoiceRecognition = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
         recognition.value = new SpeechRecognition()
-        
+
         recognition.value.continuous = false
         recognition.value.interimResults = false
         recognition.value.lang = 'zh-CN'
-        
+
         recognition.value.onstart = () => {
             isListening.value = true
         }
-        
+
         recognition.value.onresult = (event) => {
             const transcript = event.results[0][0].transcript
             inputText.value += transcript
             isListening.value = false
         }
-        
+
         recognition.value.onerror = (event) => {
             console.error('语音识别错误:', event.error)
             isListening.value = false
         }
-        
+
         recognition.value.onend = () => {
             isListening.value = false
         }
@@ -299,7 +299,7 @@ const toggleVoiceInput = () => {
         alert('您的浏览器不支持语音识别功能')
         return
     }
-    
+
     if (isListening.value) {
         recognition.value.stop()
     } else {
@@ -383,7 +383,7 @@ onMounted(() => {
     .input-area-fixed {
         width: 100%;
     }
-    
+
     .messages-area {
         height: calc(100vh - 64px - 140px);
     }
